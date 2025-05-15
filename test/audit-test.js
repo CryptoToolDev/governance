@@ -73,7 +73,7 @@ describe("Governance End-To-End audit Tests", function () {
 
         const maliciousAutopayUsers = accounts.slice(700, 800);    // 100 malicious autopay users (210-229)
         const maliciousRecyclers = accounts.slice(231, 399);       // 168 accounts for recycling (240-289)
-        const maliciousReporters = accounts.slice(600, 601);       // 50 malicious reporters (300-349)
+        const maliciousReporters = accounts.slice(600, 601);       // 1 malicious reporters (300-349)
 
         const disputeStarter = accounts[400];                      // Dispute starter (400)
         const valueSubmitter = accounts[401];                      // Value submitter (401)
